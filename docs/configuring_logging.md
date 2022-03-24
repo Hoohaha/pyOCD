@@ -1,10 +1,11 @@
-Configuring Logging
-===================
+---
+title: Configuring logging
+---
 
 ## Overview
 
 pyOCD provides extensive control over log output. It uses the standard Python
-[logging](https://docs.python.org/3.8/library/logging.html) package for all its logging. There are several ways
+[logging](https://docs.python.org/3/library/logging.html) package for all its logging. There are several ways
 to set log levels, both globally and with precise control.
 
 - Verbosity controls
@@ -35,6 +36,7 @@ Subcommand     | Default level
 `list`         | INFO
 `pack`         | INFO
 `reset`        | WARNING
+`rtt`          | INFO
 `server`       | INFO
 
 
@@ -44,6 +46,18 @@ For most users, the command line `--verbose`/`-v` and `--quiet`/`-q` arguments p
 over logging. These arguments can be listed multiple times. Each use increases or decreases the
 logging verbosity level. For example, a single `--verbose` moves `pyocd flash` from the default
 level of WARNING to INFO.
+
+
+## Color logging
+
+By default, log output to a tty is colorised. Control over colorised log output is possible two ways.
+
+The command-line `--color` argument accepts an optional parameter that must be one of `auto`, `always`, or `never`.
+The default is `auto`, which will enable color only when outputting to a tty.
+
+Another option for controlling color output is the `PYOCD_COLOR` environment variable. It should be set to one of the
+same values supported by `--color`. This environment variable changes the default color output setting, and is
+overridden by `--color` on the command line.
 
 
 ## Loggers
@@ -60,7 +74,7 @@ its package structure.
 ### Trace loggers
 
 Certain modules define additional sub-module loggers that output debug trace logs. These loggers always have the
-suffix ".trace" and are set to critical log level by default.
+suffix ".trace" and are disabled by default. This ensures the trace messages won't be seen unless explicitly enabled by the `--log-level` / `-L` argument described in the following section.
 
 Currently defined trace loggers:
 
@@ -73,10 +87,14 @@ Trace logger                                            | Trace output
 `pyocd.probe.cmsis_dap_probe.trace`                     | CMSIS-DAP probe API calls
 `pyocd.probe.jlink_probe.trace`                         | Log output from JLink library
 `pyocd.probe.pydapaccess.dap_access_cmsis_dap.trace`    | CMSIS-DAP packet building
+`pyocd.probe.pydapaccess.interface.hidapi_backend.trace` | CMSIS-DAP v1 hidapi backend USB transfers
+`pyocd.probe.pydapaccess.interface.pyusb_backend.trace` | CMSIS-DAP v1 pyusb backend USB transfers
+`pyocd.probe.pydapaccess.interface.pyusb_v2_backend.trace` | CMSIS-DAP v2 pyusb backend USB transfers
+`pyocd.probe.pydapaccess.interface.pywinusb_backend.trace` | CMSIS-DAP v1 pywinusb backend USB transfers
 `pyocd.probe.stlink.usb.trace`                          | STLink USB transfers
 `pyocd.probe.tcp_client_probe.trace`                    | Remote probe client requests and responses
 `pyocd.probe.tcp_probe_server.trace`                    | Remote probe server requests and responses
-`pyocd.utility.notification.trace`                      | Sent notifications 
+`pyocd.utility.notification.trace`                      | Sent notifications
 
 
 ## Logger-level control
@@ -121,7 +139,7 @@ package supports loading a configuration dictionary to control almost all aspect
 The `logging` session option is used to specify the logging configuration. It can be set to either a
 logging configuration dictionary or the path to a YAML file containing a configuration dictionary.
 Usually it is easiest to include the configuration directly in a `pyocd.yaml` config file. See the
-[configuration documentation](configuration.md) for more on config files. The file path is most
+[configuration documentation]({% link _docs/configuration.md %}) for more on config files. The file path is most
 useful when passing the `logging` option via the command line, since you can't provide a dictionary
 this way.
 
@@ -148,13 +166,16 @@ parent logger
 such as `pyocd` will set the level for all children—this is an easy way to control the log level
 for all of pyOCD.
 
+Note that because the `logging` option is passed to and handled by the Python logging module, it does not support
+wildcard matching against loggers like the `--log-level` argument.
+
 
 ### Full control
 
 The full schema for the logging configuration dictionary is documented in the
-[logging.config module documentation](https://docs.python.org/3.8/library/logging.config.html#logging-config-dictschema).
+[logging.config module documentation](https://docs.python.org/3/library/logging.config.html#logging-config-dictschema).
 The logging module's
-[advanced tutorial](https://docs.python.org/3.8/howto/logging.html#logging-advanced-tutorial)
+[advanced tutorial](https://docs.python.org/3/howto/logging.html#logging-advanced-tutorial)
 has a good introduction to the features and log output flow, so you can better understand the
 configuration schema.
 

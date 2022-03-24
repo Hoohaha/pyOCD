@@ -13,7 +13,6 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-import logging
 from ...coresight.coresight_target import CoreSightTarget
 from ...core.memory_map import (FlashRegion, RamRegion, MemoryMap)
 from ...debug.svd.loader import SVDFile
@@ -24,7 +23,7 @@ FLASH_ALGO = {
 
     # Flash algorithm as a hex string
     'instructions': [
-    0xe00abe00,
+    0xe7fdbe00,
     0x0100f24a, 0x0101f2c4, 0xf0206808, 0xf04000a0, 0x60080020, 0x70fff64f, 0xf24c6088, 0xf6cd5020,
     0x60481028, 0xf4106808, 0xd00b6f00, 0xf4106808, 0xd0076f00, 0xf4106808, 0xd0036f00, 0xf4106808,
     0xd1ef6f00, 0xf4106808, 0xd10b6f80, 0xf4106808, 0xd1076f80, 0xf4106808, 0xd1036f80, 0xf4106808,
@@ -84,14 +83,6 @@ FLASH_ALGO = {
     )
 }
 
-
-LOG = logging.getLogger(__name__)
-# Debugger will set this bit to 1 to request a resynchronrisation
-DM_CSW_RESYNCH_REQ_MASK =    (1<<0)
-# Write only bit. Once written will cause the chip to reset (note that the DM is not
-# reset by this reset as it is only resettable by a SOFT reset or a POR/BOD event)
-DM_CSW_CHIP_RESET_REQ_MASK = (1<<5)
-
 class KW45B41Z(CoreSightTarget):
 
     MEMORY_MAP = MemoryMap(
@@ -121,12 +112,16 @@ class KW45B41Z(CoreSightTarget):
         core.init()
         self.add_core(core)
 
-        # self.dp.write_dp(0x020000f0, 2)
-        # ret = self.dp.read_ap(3)
-        # print(hex(ret))
-        # self.dp.write_dp(0x02000000, 2)
+        self.dp.write_dp(0x020000f0, 2)
+        ret = self.dp.read_ap(3)
+        print(hex(ret))
+        self.dp.write_dp(0x02000000, 2)
+        self.dp.read_dp(0)
 
-        # self.dp.write_ap(0x21, 0)
-        # self.dp.read_ap(0)
-        # self.dp.write_ap(0x07, 1)
-        # self.dp.read_ap(0)
+        # Active DebugMailbox
+        self.dp.write_ap(0x21, 0)
+        self.dp.read_ap(0)
+
+        # // Enter Debug Session
+        self.dp.write_ap(0x07, 1)
+        self.dp.read_ap(0)

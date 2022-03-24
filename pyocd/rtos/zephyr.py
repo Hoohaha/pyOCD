@@ -1,5 +1,6 @@
 # pyOCD debugger
 # Copyright (c) 2016-2020 Arm Limited
+# Copyright (c) 2022 Intel Corporation
 # SPDX-License-Identifier: Apache-2.0
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -46,8 +47,8 @@ class TargetList(object):
                 node = 0
 
 class ZephyrThreadContext(DebugContext):
-    """! @brief Thread context for Zephyr."""
-    
+    """@brief Thread context for Zephyr."""
+
     STACK_FRAME_OFFSETS = {
                  0: 0, # r0
                  1: 4, # r1
@@ -141,7 +142,7 @@ class ZephyrThreadContext(DebugContext):
         return reg_vals
 
 class ZephyrThread(TargetThread):
-    """! @brief A Zephyr task."""
+    """@brief A Zephyr task."""
 
     READY = 0
     PENDING = 1 << 1
@@ -192,12 +193,8 @@ class ZephyrThread(TargetThread):
             self._state = self._target_context.read8(self._base + self._offsets["t_state"])
 
             if self._provider.version > 0:
-                addr = self._target_context.read32(self._base + self._offsets["t_name"])
-                if addr != 0:
-                    self._name = read_c_string(self._target_context, addr)
-                else:
-                    self._name = "Unnamed"
-
+                addr = self._base + self._offsets["t_name"]
+                self._name = read_c_string(self._target_context, addr)
 
         except exceptions.TransferError:
             LOG.debug("Transfer error while reading thread info")
@@ -241,13 +238,13 @@ class ZephyrThread(TargetThread):
         return str(self)
 
 class ZephyrThreadProvider(ThreadProvider):
-    """! @brief Thread provider for Zephyr."""
+    """@brief Thread provider for Zephyr."""
 
     ## Required Zephyr symbols.
     ZEPHYR_SYMBOLS = [
         "_kernel",
-        "_kernel_openocd_offsets",
-        "_kernel_openocd_size_t_size",
+        "_kernel_thread_info_offsets",
+        "_kernel_thread_info_size_t_size",
         ]
 
     ZEPHYR_OFFSETS = [
@@ -286,15 +283,15 @@ class ZephyrThreadProvider(ThreadProvider):
 
     def _get_offsets(self):
         # Read the kernel and thread structure member offsets
-        size = self._target_context.read8(self._symbols["_kernel_openocd_size_t_size"])
-        LOG.debug("_kernel_openocd_size_t_size = %d", size)
+        size = self._target_context.read8(self._symbols["_kernel_thread_info_size_t_size"])
+        LOG.debug("_kernel_thread_info_size_t_size = %d", size)
         if size != 4:
-            LOG.error("Unsupported _kernel_openocd_size_t_size")
+            LOG.error("Unsupported _kernel_thread_info_size_t_size")
             return None
 
         offsets = {}
         for index, name in enumerate(self.ZEPHYR_OFFSETS):
-            offset = self._symbols["_kernel_openocd_offsets"] + index * size
+            offset = self._symbols["_kernel_thread_info_offsets"] + index * size
             offsets[name] = self._target_context.read32(offset)
             LOG.debug("%s = 0x%04x", name, offsets[name])
 
@@ -416,15 +413,15 @@ class ZephyrThreadProvider(ThreadProvider):
         return self._version
 
 class ZephyrPlugin(Plugin):
-    """! @brief Plugin class for the Zephyr RTOS."""
-    
+    """@brief Plugin class for the Zephyr RTOS."""
+
     def load(self):
         return ZephyrThreadProvider
-    
+
     @property
     def name(self):
         return "zephyr"
-    
+
     @property
     def description(self):
         return "Zephyr"

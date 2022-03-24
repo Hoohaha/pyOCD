@@ -1,5 +1,6 @@
-Session options list
-=================
+---
+title: Session options list
+---
 
 _**Note:** The names of these options are expected to change before the 1.0 release of pyOCD, so
 they will be better normalized and grouped._
@@ -10,7 +11,7 @@ Note that the `project_dir`, `no_config`, and `config` options must come from ei
 argument or the _options_ parameter passed to the `Session` constructor due to how early they are
 processed. The consequence of this is that these options cannot be set in a YAML config file.
 
-<table>
+<table class="docs-table">
 
 <tr><th>Option Name</th><th>Type</th><th>Default</th><th>Description</th></tr>
 
@@ -67,6 +68,14 @@ all writes take effect immediately. However, performance is negatively affected.
 <td>
 Restrict CMSIS-DAP backend to using a single in-flight command at a time. This is useful on some systems
 where USB is problematic, in particular virtual machines.
+</td></tr>
+
+<tr><td>cmsis_dap.prefer_v1</td>
+<td>bool</td>
+<td>False</td>
+<td>
+If a device provides both CMSIS-DAP v1 and v2 interfaces, use the v1 interface in preference of v2.
+Normal behaviour is to prefer the v2 interface. This option is primarily intended for testing.
 </td></tr>
 
 <tr><td>commander.history_length</td>
@@ -216,9 +225,9 @@ Disables flash programming progress bar when True.
 
 <tr><td>keep_unwritten</td>
 <td>bool</td>
-<td>True</td>
+<td>False</td>
 <td>
-Whether to load existing flash content for ranges of sectors that will be erased but not written
+Whether to preserve existing flash content for ranges of sectors that will be erased but not written
 with new data.
 </td></tr>
 
@@ -227,7 +236,7 @@ with new data.
 <td><i>No default</i></td>
 <td>
 Either a dictionary with logging configuration, or a path to a separate yaml logging configuration
-file. See the <a href="configuring_logging.md">logging configuration documentation</a> for details of how to
+file. See the <a href="{% link _docs/configuring_logging.md %}">logging configuration documentation</a> for details of how to
 use this option.
 </td></tr>
 
@@ -395,6 +404,15 @@ Whether to enable SWV printf output over the semihosting console. Requires the <
 option to be set. The SWO baud rate can be controlled with the <tt>swv_clock</tt> option.
 </td></tr>
 
+<tr><td>debug.status_fault_retry_timeout</td>
+<td>float</td>
+<td>1</td>
+<td>
+Duration in seconds that a failed target status check will be retried before an error is raised. Only
+applies while the target is running after a resume operation in the debugger and pyOCD is waiting for
+it to halt again.
+</td></tr>
+
 <tr><td>gdbserver_port</td>
 <td>int</td>
 <td>3333</td>
@@ -532,22 +550,33 @@ These session options are available when the SEGGER J-Link debug probe plugin is
 
 <tr><th>Option Name</th><th>Type</th><th>Default</th><th>Description</th></tr>
 
+<tr><td>jlink.device</td>
+<td>str</td>
+<td><i>No default</i></td>
+<td>
+If this option is set to a supported J-Link device name, then the J-Link will be asked connect
+using this name. Otherwise, when unset, the J-Link is configured for only the low-level CoreSight operations
+required by pyOCD. Ordinarily, it does not need to be set.
+</td></tr>
+
+<tr><td>jlink.non_interactive</td>
+<td>bool</td>
+<td>True</td>
+<td>
+Controls whether the J-Link DLL is allowed to present UI dialog boxes and its control
+panel. Note that dialog boxes will actually still be visible, but the default option
+will be chosen automatically after 5 seconds.
+
+Note: This has the effect of also silencing dialog boxes that appear when
+updating firmware / to confirm updating firmware.
+</td></tr>
+
 <tr><td>jlink.power</td>
 <td>bool</td>
 <td>True</td>
 <td>
 Enable target power when connecting via a JLink probe, and disable power when disconnecting.
 Default is True.
-</td></tr>
-
-<tr><td>jlink.device</td>
-<td>str</td>
-<td><i>No default</i></td>
-<td>
-Set the device name passed to the J-Link. Normally, it doesn't matter because pyOCD does has its own
-device support, and so when this option is unset, "Cortex-M4" is used just to supply something
-valid. (For non-M4-based devices, you might see a warning about unexpected core type if you look at
-the J-Link logs, but this is harmless. J-Link does not support a "none" or "unknown" device type.)
 </td></tr>
 
 </table>
@@ -566,6 +595,24 @@ These session options are available when the Picoprobe debug probe plugin is act
 <td>
 Use safer but slower SWD transfer function with Picoprobe.
 Default is False, so possible WAIT or FAULT SWD acknowldeges and protocol errors will not be caught immediately.
+</td></tr>
+
+</table>
+
+## STLink options
+
+These session options are available when the STLink debug probe plugin is active.
+
+<table>
+
+<tr><th>Option Name</th><th>Type</th><th>Default</th><th>Description</th></tr>
+
+<tr><td>stlink.v3_prescaler</td>
+<td>int</td>
+<td>1</td>
+<td>
+Sets the HCLK prescaler of an STLinkV3, changing performance versus power tradeoff.
+The value must be one of 1=high performance (default), 2=normal, or 4=low power.
 </td></tr>
 
 </table>

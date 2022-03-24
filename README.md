@@ -1,38 +1,45 @@
 pyOCD
 =====
 
+[\[pyocd.io\]](https://pyocd.io/) [\[Docs\]](https://pyocd.io/docs) [\[Slack\]](https://join.slack.com/t/pyocd/shared_invite/zt-wmy3zvg5-nRLj1GBWYh708TVfIx9Llg) [\[Mailing list\]](https://groups.google.com/g/pyocd) [\[CI results\]](https://dev.azure.com/pyocd/pyocd/_build?definitionId=1&_a=summary)
+
 <table><tr><td>
 
 ### News
 
+- A new CI pipeline for functional tests is now running on a new test farm. Full results are [publicly
+    accessible](https://dev.azure.com/pyocd/pyocd/_build?definitionId=1&_a=summary) on Azure Pipelines.
+- pyOCD has several new community resources: the [pyocd.io](https://pyocd.io/) website,
+    a [Slack workspace](https://join.slack.com/t/pyocd/shared_invite/zt-zqjv6zr5-ZfGAXl_mFCGGmFlB_8riHA),
+    and a [mailing list](https://groups.google.com/g/pyocd) for announcements.
 - Branch configuration changes: the default branch `master` has been renamed to `main`, and a `develop` branch has been added to be used for active development. New pull requests should generally target `develop`. See [this discussion](https://github.com/pyocd/pyOCD/discussions/1169) for more information about this change.
 
 See the [wiki news page](https://github.com/pyocd/pyOCD/wiki/News) for all recent news.
 
 </td></tr></table>
 
-pyOCD is an open source Python package for programming and debugging Arm Cortex-M microcontrollers
-using multiple supported types of USB debug probes. It is fully cross-platform, with support for
-Linux, macOS, Windows, and FreeBSD.
+pyOCD is an open source Python based tool and package for programming and debugging Arm Cortex-M microcontrollers
+with a wide range of debug probes. It is fully cross-platform, with support for Linux, macOS, Windows, and FreeBSD.
 
 A command line tool is provided that covers most use cases, or you can make use of the Python
-API to enable low-level target control. A common use for the Python API is to run and control CI
+API to facilitate custom target control. A common use for the Python API is to run and control CI
 tests.
 
-Upwards of 70 popular MCUs are supported built-in. In addition, through the use of CMSIS-Packs,
-[nearly every Cortex-M device](https://www.keil.com/dd2/pack/) on the market is supported.
+Support for more than 70 popular MCUs is built-in. In addition, through the use of CMSIS Device
+Family Packs, [nearly every Cortex-M device](https://www.keil.com/dd2/pack/) on the market is supported.
 
 The `pyocd` command line tool gives you total control over your device with these subcommands:
 
 - `gdbserver`: GDB remote server allows you to debug using gdb via either the console or
-    [several GUI debugger options](#recommended-gdb-and-ide-setup).
+    [several GUI debugger options](https://pyocd.io/docs/gdb_setup).
 - `load`: Program files of various formats into flash or RAM.
 - `erase`: Erase part or all of an MCU's flash memory.
-- `pack`: Manage [CMSIS Device Family Packs](http://arm-software.github.io/CMSIS_5/Pack/html/index.html)
+- `pack`: Manage [CMSIS Device Family Packs](https://open-cmsis-pack.github.io/Open-CMSIS-Pack-Spec/main/html/index.html)
     that provide additional target device support.
 - `commander`: Interactive REPL control and inspection of the MCU.
 - `server`: Share a debug probe with a TCP/IP server.
 - `reset`: Hardware or software reset of a device.
+- `rtt`: Stream Segger RTT IO with _any_ debug probe.
 - `list`: Show connected devices.
 
 The API and tools provide these features:
@@ -49,8 +56,8 @@ The API and tools provide these features:
 -  SWO and SWV
 -  and more!
 
-Configuration and customization is supported through [config files](docs/configuration.md),
-[user scripts](docs/user_scripts.md), and the Python API.
+Configuration and customization is supported through [config files](https://pyocd.io/docs/configuration),
+[user scripts](https://pyocd.io/docs/user_scripts), and the Python API.
 
 
 Requirements
@@ -61,7 +68,7 @@ Requirements
 - A recent version of [libusb](https://libusb.info/). See [libusb installation](#libusb-installation) for details.
 - Microcontroller with an Arm Cortex-M CPU
 - Supported debug probe
-  - [CMSIS-DAP](http://www.keil.com/pack/doc/CMSIS/DAP/html/index.html) v1 (HID) or v2 (WinUSB), including:
+  - [CMSIS-DAP](https://arm-software.github.io/CMSIS_5/DAP/html/index.html) v1 (HID) or v2 (WinUSB), including:
     - Atmel EDBG/nEDBG
     - Atmel-ICE
     - Cypress KitProg3 or MiniProg4
@@ -79,16 +86,15 @@ Requirements
 Status
 ------
 
-PyOCD is functionally reliable and fully useable.
+PyOCD is beta quality.
 
-The Python API is considered partially unstable as we are restructuring and cleaning it up prior to
-releasing version 1.0.
+The Python API is considered stable for version 0.x, but will be changed in version 1.0.
 
 
 Documentation
 -------------
 
-The pyOCD documentation is located in [the docs directory](docs/).
+The pyOCD documentation is available on the [pyocd.io website](https://pyocd.io/docs).
 
 In addition to user guides, you can generate reference documentation using Doxygen with the
 supplied [config file](docs/Doxyfile).
@@ -96,6 +102,11 @@ supplied [config file](docs/Doxyfile).
 
 Installing
 ----------
+
+**The full installation guide is available [in the documentation](https://pyocd.io/docs/installing).**
+
+For notes about installing and using on non-x86 systems such as Raspberry Pi, see the
+[relevant documentation](https://pyocd.io/docs/installing_on_non_x86).
 
 The latest stable version of pyOCD may be installed via [pip](https://pip.pypa.io/en/stable/index.html)
 as follows:
@@ -119,7 +130,7 @@ $ python3 -mpip install --pre -U git+https://github.com/pyocd/pyOCD.git@develop
 You can also install directly from the source by cloning the git repository and running:
 
 ```
-$ python3 setup.py install
+$ python3 pip install .
 ```
 
 Note that, depending on your operating system, you may run into permissions issues running these commands.
@@ -131,25 +142,6 @@ You have a few options here:
 3. Specify the `--user` option to install local to your user account.
 4. Run the command in a [virtualenv](https://virtualenv.pypa.io/en/latest/)
    local to a specific project working set.
-
-For notes about installing and using on non-x86 systems such as Raspberry Pi, see the
-[relevant documentation](docs/installing_on_non_x86.md).
-
-### libusb installation
-
-[pyusb](https://github.com/pyusb/pyusb) and its backend library [libusb](https://libusb.info/) are
-dependencies on all supported operating systems. pyusb is a regular Python package and will be
-installed along with pyOCD. However, libusb is a binary shared library that does not get installed
-automatically via pip dependency management.
-
-How to install libusb depends on your OS:
-
-- macOS: use Homebrew: `brew install libusb`
-- Linux and BSD: should already be installed.
-- Windows: download libusb from [libusb.info](https://libusb.info/) and place the .dll file in your Python
-  installation folder next to python.exe. Make sure to use the same 32- or 64-bit architecture as
-  your Python installation. The latest release is [available on GitHub](https://github.com/libusb/libusb/releases);
-  download the .7z archive under Assets. Use the library from the VS2019 folder in the archive.
 
 ### udev rules on Linux
 
@@ -164,80 +156,54 @@ instructions.
 
 ### Target support
 
-See the [target support documentation](docs/target_support.md) for information on how to check if
+See the [target support documentation](https://pyocd.io/docs/target_support) for information on how to check if
 the MCU(s) you are using have built-in support, and how to install support for additional MCUs via
 CMSIS-Packs.
 
 
-Standalone GDB server
----------------------
+Using GDB
+---------
 
-After you install pyOCD via pip or setup.py, you will be able to execute the following in order to
-start a GDB server powered by pyOCD:
-
-```
-$ pyocd gdbserver
-```
-
-You can get additional help by running ``pyocd gdbserver --help``.
-
-Example command line GDB session showing how to connect to a running `pyocd gdbserver` and load
-firmware:
-
-```
-$ arm-none-eabi-gdb application.elf
-
-<gdb> target remote localhost:3333
-<gdb> load
-<gdb> monitor reset
-```
-
-The `pyocd gdbserver` subcommand is also usable as a drop in place replacement for OpenOCD in
-existing setups. The primary difference is the set of gdb monitor commands.
+See the [GDB setup](https://pyocd.io/docs/gdb_setup) documentation for a guide for setting up
+and using pyocd with gdb and IDEs.
 
 
-Recommended GDB and IDE setup
------------------------------
+Community resources
+-------------------
 
-The recommended toolchain for embedded Arm Cortex-M development is [GNU Arm
-Embedded](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm),
-provided by Arm. GDB is included with this toolchain.
+Join the pyOCD community!
 
-For [Visual Studio Code](https://code.visualstudio.com), the
-[cortex-debug](https://marketplace.visualstudio.com/items?itemName=marus25.cortex-debug) plugin is available
-that supports pyOCD.
+[pyocd.io website](https://pyocd.io) \
+[Documentation](https://pyocd.io/docs) \
+[Issues](https://github.com/pyocd/pyOCD/issues) \
+[Discussions](https://github.com/pyocd/pyOCD/discussions) \
+[Wiki](https://github.com/pyocd/pyOCD/wiki) \
+[Mailing list](https://groups.google.com/g/pyocd) for announcements
 
-The GDB server also works well with [Eclipse Embedded CDT](https://projects.eclipse.org/projects/iot.embed-cdt),
-previously known as [GNU MCU/ARM Eclipse](https://gnu-mcu-eclipse.github.io/). It fully supports pyOCD with
-an included pyOCD debugging plugin.
-
-To view peripheral register values either the built-in Eclipse Embedded CDT register view can be used, or
-the Embedded System Register Viewer plugin can be installed. The latter can be installed from inside
-Eclipse adding `http://embsysregview.sourceforge.net/update` as a software update server URL
-under the "Help -> Install New Software..." menu item.
+In order to foster a healthy and safe environment, we expect contributors and all members of the community to
+follow our [Code of Conduct](https://github.com/pyocd/pyOCD/tree/main/CODE_OF_CONDUCT.md).
 
 
 Contributions
 -------------
 
-Join the pyOCD community! We welcome contributions in any area. Please see the [contribution
-guidelines](CONTRIBUTING.md) for detailed requirements. In order to foster a healthy
-and safe environment, we expect contributors and all members of the community to follow the
-[code of conduct](CODE_OF_CONDUCT.md).
+We welcome contributions in any area, even if you just create an issue. If you would like to get involved but
+aren't sure what to start with, just ask on
+[Slack](https://join.slack.com/t/pyocd/shared_invite/zt-zqjv6zr5-ZfGAXl_mFCGGmFlB_8riHA) or [GitHub
+discussions](https://github.com/pyocd/pyOCD/discussions) and we'll be happy to help you. Or you can look for
+an open issue. Any work on major changes should be discussed with the maintainers to make everyone is aligned.
 
-To report bugs, please [create an issue](https://github.com/pyocd/pyOCD/issues/new) in the
-GitHub project.
+Please see the [contribution guidelines](https://github.com/pyocd/pyOCD/tree/main/CONTRIBUTING.md) for detailed requirements. The [developers'
+Guide](https://pyocd.io/docs/developers_guide) has instructions on how to set up a development environment for pyOCD.
 
-Please see the [Developers' Guide](docs/developers_guide.md) for instructions on how to set up a
-development environment for pyOCD.
-
-New pull requests should be [created](https://github.com/pyocd/pyOCD/pull/new/develop) against the `develop` branch.
+New pull requests should be [created](https://github.com/pyocd/pyOCD/pull/new) against the `develop` branch. (You have to change the "base" to `develop`.)
 
 
 License
 -------
 
-PyOCD is licensed with the permissive Apache 2.0 license. See the [LICENSE](LICENSE) file for the
-full text of the license.
+PyOCD is licensed with the permissive Apache 2.0 license. See the
+[LICENSE](https://github.com/pyocd/pyOCD/tree/main/LICENSE) file for the full text of the license. All
+documentation and the website are licensed with [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
 
-Copyright © 2006-2021 PyOCD Authors
+Copyright © 2006-2022 PyOCD Authors
