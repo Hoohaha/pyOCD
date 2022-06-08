@@ -121,7 +121,7 @@ from . import target_HC32L07x
 from . import target_MPS3_AN522
 from . import target_MPS3_AN540
 from . import target_RP2040
-
+from . import target_LPC865
 ## @brief Dictionary of all builtin targets.
 #
 # @note Target type names must be all lowercase and use _underscores_ instead of dashes. The code in Board
@@ -161,6 +161,7 @@ BUILTIN_TARGETS = {
           'k32l2b3': target_K32L2B.K32L2B3,
           'lpc800': target_lpc800.LPC800,
           'lpc845': target_LPC845.LPC845,
+          'lpc865': target_LPC865.LPC865,
           'lpc11u24': target_LPC11U24FBD64_401.LPC11U24,
           'lpc1768': target_LPC1768.LPC1768,
           'lpc4330': target_LPC4330.LPC4330,
